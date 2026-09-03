@@ -1,0 +1,62 @@
+:root {
+  /* Color — pulled directly from the KeepALive mark: deep navy field,
+     crimson brand/signal red, near-white text. Status colors (quiet/
+     moderate) stay distinct from the brand red so a "busy" status pill
+     is never confused with the brand's own red. */
+  --color-paper: #001231;
+  --color-paper-raised: #0a1f42;
+  --color-ink: #f5f6f8;
+  --color-ink-muted: #8b96ac;
+  --color-line: #142a4d;
+  --color-line-strong: #24406b;
+
+  --color-signal: #c3112e; /* brand / "live" / primary actions */
+  --color-signal-bright: #fb1a34; /* glow accent — pulse dot, highlights */
+  --color-signal-ink: #ffffff;
+
+  --color-quiet: #2f9e63;
+  --color-moderate: #e2a032;
+  --color-busy: #ff7a4d; /* kept distinct from --color-signal on purpose */
+  --color-offline: #5c6b85;
+
+  --color-video-bg: #030711; /* dedicated near-black for the stream
+     placeholder — independent of --color-ink so it doesn't invert if the
+     theme ever changes */
+  --color-video-ink: rgba(245, 246, 248, 0.55);
+
+  /* Type */
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, sans-serif;
+
+  --text-xs: 0.8125rem; /* 13px */
+  --text-sm: 0.9375rem; /* 15px */
+  --text-base: 1rem; /* 16px */
+  --text-lg: 1.25rem; /* 20px */
+  --text-xl: 1.75rem; /* 28px */
+  --text-2xl: 2.25rem; /* 36px */
+
+  --leading-tight: 1.15;
+  --leading-normal: 1.5;
+
+  /* Spacing — 4px base scale */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-8: 3rem;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+
+  --max-content-width: 640px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

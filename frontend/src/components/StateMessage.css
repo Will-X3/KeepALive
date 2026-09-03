@@ -1,0 +1,57 @@
+.state-message {
+  padding: var(--space-8) 0;
+  text-align: left;
+}
+
+.state-message__title {
+  font-size: var(--text-xl);
+  max-width: 22ch;
+}
+
+.state-message__body {
+  margin-top: var(--space-3);
+  color: var(--color-ink-muted);
+  max-width: 42ch;
+}
+
+.state-message__note {
+  margin-top: var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--color-ink-muted);
+  max-width: 42ch;
+}
+
+.state-message__actions {
+  margin-top: var(--space-5);
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.btn {
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-5);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  border: 1px solid transparent;
+  transition: opacity 0.12s ease, background 0.12s ease;
+}
+
+.btn--primary {
+  background: var(--color-signal);
+  color: var(--color-signal-ink);
+}
+
+.btn--primary:hover {
+  opacity: 0.9;
+}
+
+.btn--ghost {
+  background: transparent;
+  border-color: var(--color-line-strong);
+  color: var(--color-ink);
+}
+
+.btn--ghost:hover {
+  border-color: var(--color-ink);
+}
