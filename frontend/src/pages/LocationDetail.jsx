@@ -4,6 +4,7 @@ import { fetchLocationById } from "../api/locations";
 import StatusPill from "../components/StatusPill";
 import StateMessage from "../components/StateMessage";
 import ReviewWidget from "../components/ReviewWidget";
+import VideoPlayer from "../components/VideoPlayer";
 import "./LocationDetail.css";
 
 export default function LocationDetail() {
@@ -67,9 +68,17 @@ export default function LocationDetail() {
         ← Nearby places
       </Link>
 
-      <div className="detail__stream">
-        <span className="detail__stream-note">Live view coming soon</span>
-      </div>
+      {location.liveStream?.playbackUrl ? (
+        <div className="detail__stream-wrapper">
+          <VideoPlayer src={location.liveStream.playbackUrl} />
+        </div>
+      ) : (
+        <div className="detail__stream">
+          <span className="detail__stream-note">
+            {location.status === "live" ? "Live view starting…" : "Live view coming soon"}
+          </span>
+        </div>
+      )}
 
       <div className="detail__header">
         <h1 className="detail__name">{location.name}</h1>

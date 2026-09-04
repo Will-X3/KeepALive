@@ -93,7 +93,21 @@ const getLocationById = asyncHandler(async (req, res) => {
     throw new Error("Location not found");
   }
 
-  res.json(location);
+  // Only ever expose a playback URL when a stream is genuinely reporting
+  // "live" — this is the actual public-facing privacy gate. A camera that
+  // exists but hasn't been confirmed healthy (or has gone fail_closed)
+  // must never surface a playable URL here, regardless of what the
+  // business owner can see in their own dashboard preview.
+  const cameras = await Camera.find({ locationId: location._id }).select("_id");
+  const liveStream = await Stream.findOne({
+    cameraId: { $in: cameras.map((c) => c._id) },
+    publicState: "live",
+  }).sort({ updatedAt: -1 });
+
+  res.json({
+    ...location.toObject(),
+    liveStream: liveStream ? { playbackUrl: liveStream.playbackUrl } : null,
+  });
 });
 
 // @route  POST /api/locations

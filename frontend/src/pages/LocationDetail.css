@@ -8,6 +8,10 @@
   justify-content: center;
 }
 
+.detail__stream-wrapper {
+  margin-top: var(--space-4);
+}
+
 .detail__stream-note {
   color: var(--color-video-ink);
   font-size: var(--text-sm);
