@@ -1,4 +1,5 @@
 import "./CameraCard.css";
+import VideoPlayer from "./VideoPlayer";
 
 const CAMERA_STATUS_LABEL = {
   connected: "Connected",
@@ -15,11 +16,29 @@ const STREAM_STATE_LABEL = {
   fail_closed: "Fail-closed",
 };
 
-export default function CameraCard({ camera, contextLabel, onRotateKey, onDelete, rotating, deleting }) {
+export default function CameraCard({
+  camera,
+  contextLabel,
+  onRotateKey,
+  onDelete,
+  rotating,
+  deleting,
+  showPreview = true,
+}) {
   const latestStream = camera.streams?.[0];
 
   return (
     <div className="camera-card">
+      {showPreview && latestStream?.playbackUrl && (
+        <div className="camera-card__preview">
+          <VideoPlayer src={latestStream.playbackUrl} />
+          <p className="camera-card__preview-note">
+            Private preview — blurred at the source regardless of live status. This is what you see
+            as the owner; the public only sees it once the stream reports "Live."
+          </p>
+        </div>
+      )}
+
       <div className="camera-card__top">
         <div>
           {contextLabel && <p className="camera-card__context">{contextLabel}</p>}

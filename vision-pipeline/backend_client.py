@@ -28,8 +28,11 @@ def _post(path, json_body):
         return None
 
 
-def send_heartbeat(ingest_state="connected"):
-    return _post("/api/ingest/heartbeat", {"ingestState": ingest_state})
+def send_heartbeat(ingest_state="connected", playback_url=None):
+    body = {"ingestState": ingest_state}
+    if playback_url:
+        body["playbackUrl"] = playback_url
+    return _post("/api/ingest/heartbeat", body)
 
 
 def report_event(event_type, detail=None):

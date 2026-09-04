@@ -22,6 +22,15 @@ HLS_OUTPUT_DIR = os.environ.get("HLS_OUTPUT_DIR", "./hls_output")
 OUTPUT_FPS = int(os.environ.get("OUTPUT_FPS", "15"))  # per the plan: no need for high fps,
                                                         # a few seconds of latency is fine
 
+# --- Playback ---
+# The worker serves its own HLS output over plain HTTP so a browser can
+# play it directly. This only works when whoever's viewing can actually
+# reach this host/port — fine on a shared LAN or localhost, NOT a
+# production answer for a remote camera on a different network. See the
+# note on Stream.playbackUrl in the backend.
+PLAYBACK_HOST = os.environ.get("PLAYBACK_HOST", "localhost")
+PLAYBACK_PORT = int(os.environ.get("PLAYBACK_PORT", "8081"))
+
 # --- Health reporting cadence ---
 HEARTBEAT_INTERVAL_SECONDS = int(os.environ.get("HEARTBEAT_INTERVAL_SECONDS", "10"))
 BLUR_HEALTH_CHECK_INTERVAL_SECONDS = int(os.environ.get("BLUR_HEALTH_CHECK_INTERVAL_SECONDS", "15"))

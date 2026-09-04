@@ -25,6 +25,9 @@ const heartbeat = asyncHandler(async (req, res) => {
 
   const stream = await getOrCreateStream(camera._id);
   stream.ingestState = req.body.ingestState || "connected";
+  if (typeof req.body.playbackUrl === "string") {
+    stream.playbackUrl = req.body.playbackUrl;
+  }
   stream.lastHealthCheckAt = new Date();
   await stream.save();
 

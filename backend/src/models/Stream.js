@@ -26,6 +26,13 @@ const streamSchema = new mongoose.Schema(
       unique: true,
       default: () => crypto.randomBytes(16).toString("hex"),
     },
+    // Where the worker is actually serving its HLS output right now.
+    // Reported by the worker on each heartbeat — see ingestController.
+    // Today this is only ever reachable when the worker and whoever's
+    // viewing share a network (local dev, or a camera on the same LAN as
+    // the backend); it is NOT a production playback path for a remote
+    // camera. That needs real hosting/CDN, not solved by this field.
+    playbackUrl: { type: String },
     lastHealthCheckAt: Date,
   },
   { timestamps: true }

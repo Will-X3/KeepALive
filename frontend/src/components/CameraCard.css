@@ -5,6 +5,16 @@
   padding: var(--space-4);
 }
 
+.camera-card__preview {
+  margin-bottom: var(--space-4);
+}
+
+.camera-card__preview-note {
+  margin-top: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--color-ink-muted);
+}
+
 .camera-card__context {
   font-size: var(--text-xs);
   color: var(--color-ink-muted);

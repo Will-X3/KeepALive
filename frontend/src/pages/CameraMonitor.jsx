@@ -104,6 +104,7 @@ export default function CameraMonitor() {
               >
                 <CameraCard
                   camera={camera}
+                  showPreview={false}
                   contextLabel={`${camera.locationId?.businessId?.name || "Unknown business"} - ${
                     camera.locationId?.name || "Unknown location"
                   }`}

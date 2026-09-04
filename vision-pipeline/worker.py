@@ -30,6 +30,7 @@ import cv2
 import config
 import backend_client
 from face_blur_pipeline import FaceBlurPipeline
+from playback_server import start_playback_server
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
@@ -93,7 +94,7 @@ def start_ffmpeg_hls_writer(width, height, fps):
     return subprocess.Popen(cmd, stdin=subprocess.PIPE, stderr=subprocess.DEVNULL)
 
 
-def reporting_loop(state):
+def reporting_loop(state, playback_url):
     """Runs in a background thread: heartbeats on its own cadence, and
     reports blur-health based on whether the capture loop is currently
     processing frames successfully. This is deliberately decoupled from the
@@ -106,7 +107,7 @@ def reporting_loop(state):
         now = time.time()
 
         if now - last_heartbeat >= config.HEARTBEAT_INTERVAL_SECONDS:
-            backend_client.send_heartbeat()
+            backend_client.send_heartbeat(playback_url=playback_url)
             last_heartbeat = now
 
         if now - last_blur_health >= config.BLUR_HEALTH_CHECK_INTERVAL_SECONDS:
@@ -140,13 +141,20 @@ def run():
 
     ffmpeg_proc = start_ffmpeg_hls_writer(width, height, config.OUTPUT_FPS)
 
+    # Bind on all interfaces so another device on the LAN can reach this
+    # (e.g. testing from a phone or another laptop) — but report the
+    # PLAYBACK_HOST-based URL, which you control separately, since
+    # "0.0.0.0" itself isn't something a browser can connect to.
+    start_playback_server(config.HLS_OUTPUT_DIR, "0.0.0.0", config.PLAYBACK_PORT)
+    playback_url = f"http://{config.PLAYBACK_HOST}:{config.PLAYBACK_PORT}/stream.m3u8"
+
     state = WorkerState()
-    threading.Thread(target=reporting_loop, args=(state,), daemon=True).start()
+    threading.Thread(target=reporting_loop, args=(state, playback_url), daemon=True).start()
 
     backend_client.report_event("connected", f"Worker started for source {source}")
     logger.info(
-        "Worker running: %sx%s @ %sfps, backend=%s",
-        width, height, config.OUTPUT_FPS, config.DETECTOR_BACKEND,
+        "Worker running: %sx%s @ %sfps, backend=%s, playback=%s",
+        width, height, config.OUTPUT_FPS, config.DETECTOR_BACKEND, playback_url,
     )
 
     try:
