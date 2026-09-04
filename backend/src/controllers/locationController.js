@@ -1,6 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const Location = require("../models/Location");
 const Camera = require("../models/Camera");
+const Stream = require("../models/Stream");
 const Category = require("../models/Category");
 const { assertOwnsBusiness, assertOwnsLocation } = require("../utils/ownership");
 
@@ -84,7 +85,7 @@ const getNearbyLocations = asyncHandler(async (req, res) => {
 const getLocationById = asyncHandler(async (req, res) => {
   const location = await Location.findById(req.params.id)
     .populate("categoryId", "name slug")
-    .populate("businessId", "name website status");
+    .populate("businessId", "name website status settings");
 
   const businessActive = location?.businessId?.status === "active";
   if (!location || !businessActive || location.status === "suspended") {
@@ -153,8 +154,10 @@ const updateLocation = asyncHandler(async (req, res) => {
 
 // @route  PATCH /api/locations/:id/visibility
 // @access Private (owner or admin)
-// Toggles live <-> paused. Going live requires at least one camera —
-// the real health gate lands with the streaming pipeline.
+// Toggles live <-> paused. Going live requires a camera with a Stream
+// already reporting publicState "live" — i.e. the blur pipeline has
+// confirmed healthy via /api/ingest/blur-health. A connected camera alone
+// is not enough; ambiguous/unconfirmed states never resolve permissively.
 const setVisibility = asyncHandler(async (req, res) => {
   const location = await assertOwnsLocation(req.user, req.params.id);
   const { status } = req.body;
@@ -165,10 +168,21 @@ const setVisibility = asyncHandler(async (req, res) => {
   }
 
   if (status === "live") {
-    const cameraCount = await Camera.countDocuments({ locationId: location._id });
-    if (cameraCount === 0) {
+    const cameras = await Camera.find({ locationId: location._id }).select("_id");
+    if (cameras.length === 0) {
       res.status(409);
       throw new Error("Connect a camera before going live");
+    }
+
+    const liveStream = await Stream.findOne({
+      cameraId: { $in: cameras.map((c) => c._id) },
+      publicState: "live",
+    });
+    if (!liveStream) {
+      res.status(409);
+      throw new Error(
+        "No camera is currently confirmed healthy (publicState 'live'). Check the camera's ingest and blur-health status."
+      );
     }
   }
 

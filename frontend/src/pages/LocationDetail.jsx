@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { fetchLocationById } from "../api/locations";
 import StatusPill from "../components/StatusPill";
 import StateMessage from "../components/StateMessage";
+import ReviewWidget from "../components/ReviewWidget";
 import "./LocationDetail.css";
 
 export default function LocationDetail() {
@@ -93,6 +94,8 @@ export default function LocationDetail() {
           </a>
         )}
       </div>
+
+      {location.businessId?.settings?.allowReviews && <ReviewWidget locationId={location._id} />}
     </main>
   );
 }

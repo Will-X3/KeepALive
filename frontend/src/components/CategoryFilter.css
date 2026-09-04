@@ -28,7 +28,8 @@
   color: var(--color-ink);
 }
 
-.category-filter__chip--active {
+.category-filter__chip--active,
+.category-filter__chip--active:hover {
   background: var(--color-ink);
   border-color: var(--color-ink);
   color: var(--color-paper-raised);

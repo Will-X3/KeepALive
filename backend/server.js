@@ -11,6 +11,9 @@ const authRoutes = require("./src/routes/authRoutes");
 const businessRoutes = require("./src/routes/businessRoutes");
 const locationRoutes = require("./src/routes/locationRoutes");
 const categoryRoutes = require("./src/routes/categoryRoutes");
+const cameraRoutes = require("./src/routes/cameraRoutes");
+const ingestRoutes = require("./src/routes/ingestRoutes");
+const reviewRoutes = require("./src/routes/reviewRoutes");
 
 connectDB();
 
@@ -27,6 +30,9 @@ app.use("/api/auth", authRoutes);
 app.use("/api/businesses", businessRoutes);
 app.use("/api/locations", locationRoutes);
 app.use("/api/categories", categoryRoutes);
+app.use("/api", cameraRoutes); // mounts /api/locations/:locationId/cameras and /api/cameras/:id
+app.use("/api", reviewRoutes); // mounts /api/locations/:locationId/reviews...
+app.use("/api/ingest", ingestRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

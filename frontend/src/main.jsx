@@ -6,13 +6,17 @@ import "@fontsource/space-grotesk/700.css";
 import "@fontsource/ibm-plex-sans/400.css";
 import "@fontsource/ibm-plex-sans/500.css";
 import "./styles/global.css";
+import "./styles/forms.css";
 import "./pages/Home.css";
+import { AuthProvider } from "./context/AuthContext";
 import App from "./App";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <BrowserRouter>
-      <App />
+      <AuthProvider>
+        <App />
+      </AuthProvider>
     </BrowserRouter>
   </React.StrictMode>
 );

@@ -45,7 +45,8 @@ const getMyBusinesses = asyncHandler(async (req, res) => {
 // @access Private (owner or admin)
 const getBusinessById = asyncHandler(async (req, res) => {
   const business = await assertOwnsBusiness(req.user, req.params.id);
-  res.json(business);
+  const locations = await Location.find({ businessId: business._id });
+  res.json({ ...business.toObject(), locations });
 });
 
 // @route  PATCH /api/businesses/:id
@@ -86,10 +87,34 @@ const updateBusinessStatus = asyncHandler(async (req, res) => {
   res.json(updated);
 });
 
+// @route  PATCH /api/businesses/:id/settings
+// @access Private (owner or admin)
+// Opt-in feature flags. allowReviews in particular is a real product
+// decision, not a cosmetic setting — see the comment on the Business
+// model. This endpoint only ever writes the two known flags, never
+// arbitrary keys, so a client can't smuggle in unrelated fields.
+const updateBusinessSettings = asyncHandler(async (req, res) => {
+  await assertOwnsBusiness(req.user, req.params.id);
+
+  const { allowReviews, broadcastWaitTimes } = req.body;
+  const update = {};
+  if (typeof allowReviews === "boolean") update["settings.allowReviews"] = allowReviews;
+  if (typeof broadcastWaitTimes === "boolean") update["settings.broadcastWaitTimes"] = broadcastWaitTimes;
+
+  if (Object.keys(update).length === 0) {
+    res.status(400);
+    throw new Error("Provide allowReviews and/or broadcastWaitTimes as booleans");
+  }
+
+  const updated = await Business.findByIdAndUpdate(req.params.id, { $set: update }, { new: true });
+  res.json(updated);
+});
+
 module.exports = {
   createBusiness,
   getMyBusinesses,
   getBusinessById,
   updateBusiness,
   updateBusinessStatus,
+  updateBusinessSettings,
 };

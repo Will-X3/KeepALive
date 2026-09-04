@@ -1,0 +1,67 @@
+Add camera ingestion, business dashboard, and vision pipeline
+
+Backend
+- Camera model + ingest-key auth, separate from user JWT and from
+  playback IDs, so a leaked key is rotatable without touching anything
+  else.
+- /api/ingest/{heartbeat,event,blur-health}: fail-closed by design.
+  Connectivity alone never marks a stream live; only blur-health
+  reporting healthy=true (while the camera is also connected) does.
+  Any failure event takes the feed down immediately, no grace period.
+- Location visibility ("go live") now requires an actual Stream with
+  publicState "live", not just a camera existing.
+- Business.settings.{allowReviews, broadcastWaitTimes} + PATCH
+  endpoint. allowReviews is a real product decision (reopens something
+  originally scoped out), gated behind an explicit opt-in.
+- Reviews: closed-vocabulary checkboxes only, no free text anywhere in
+  the model, schema, or API — removes the moderation surface a normal
+  review feature would carry. Soft one-review-per-session-per-location
+  limit via a unique index (deterrent, not real fraud prevention).
+- GET /api/cameras/mine: every camera across every location an owner
+  has, for the cross-location monitor.
+- Fix: GET /api/businesses/:id was never attaching locations (only
+  /mine was), so the business detail page always showed "no locations"
+  regardless of what actually existed in the database.
+
+Frontend
+- Business auth (register/login), JWT persisted client-side and
+  attached to every dashboard request via an axios interceptor.
+- Dashboard: businesses list with real stats, business detail with
+  location management, per-location camera connect/rotate/remove, a
+  cross-location camera monitor with live/issue filtering.
+- Ingest key is shown exactly once on connect/rotate, matching the
+  backend's "never shown again" behavior; never persisted client-side.
+- Feature toggles UI for the new business settings, including inline
+  copy clarifying that reviews and wait-time broadcast are opt-in
+  preferences, not fully shipped features yet.
+- Review widget on the consumer location page: same closed-vocabulary
+  tags as checkboxes, aggregate counts, only rendered when a business
+  has opted in.
+- Theme applied from the actual logo (sampled colors, not eyeballed).
+- Fix: active+hover state on filter chips resolved to the same text
+  and background color (CSS specificity tie), making the label
+  disappear on click. Same pattern applied defensively to the new
+  review chips.
+
+Vision pipeline (Python, separate process per camera)
+- Face detection (Haar by default, pluggable to YuNet) + centroid
+  tracking between detection frames + Gaussian blur, verified against
+  real images/video, not just unit-level.
+- Fail-closed at the frame level: any detector/blur exception drops
+  that frame instead of forwarding it unblurred to the encoder.
+- Reports to the backend's ingest endpoints over HTTP using the
+  camera's ingest key; survives the backend being unreachable without
+  crashing.
+- Known gap: no built-in playback — writes HLS files to disk but
+  nothing serves or plays them yet. Confirmed working via VLC pointed
+  directly at the local .m3u8 output.
+
+Known limitations carried forward
+- No video player in the dashboard yet; "Live view coming soon" is a
+  real placeholder, not a bug.
+- Vision pipeline tested locally only; no real RTSP camera, no
+  multi-camera load testing, no production playback path (works today
+  because worker and backend share a network — a remote camera would
+  need real hosting/CDN, not solved here).
+- YuNet model not bundled (git-lfs host unreachable in dev sandbox);
+  Haar cascade is the working default, YuNet is a documented upgrade.

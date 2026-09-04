@@ -25,3 +25,22 @@ export async function fetchCategories() {
   const { data } = await apiClient.get("/api/categories");
   return data;
 }
+
+// --- Business-owner side (dashboard) ---
+
+export async function createLocation(payload) {
+  // payload: { businessId, categoryId, name, address, lat, lng, timezone, hours? }
+  const { data } = await apiClient.post("/api/locations", payload);
+  return data;
+}
+
+export async function updateLocation(id, updates) {
+  const { data } = await apiClient.patch(`/api/locations/${id}`, updates);
+  return data;
+}
+
+export async function setLocationVisibility(id, status) {
+  // status: "live" | "paused"
+  const { data } = await apiClient.patch(`/api/locations/${id}/visibility`, { status });
+  return data;
+}
